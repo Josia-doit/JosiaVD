@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Josia万能视频解析</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: #0a0a1a;
+            overflow-x: hidden;
+        }
+
+        #canv {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: hsla(242, 30%, 5%, 1);
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 900px;
+            margin: 70px auto 40px;
+            background: rgba(22, 24, 38, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 22px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            padding: 55px 50px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #4cc9f0, #72efdd, #5e60ce);
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .usage {
+            text-align: center;
+            color: #cbd5e1;
+            font-size: 17px;
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        #urlInput {
+            flex: 1;
+            min-width: 300px;
+            padding: 19px 24px;
+            border-radius: 14px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #fff;
+            outline: none;
+        }
+
+        #urlInput:focus {
+            border-color: #4cc9f0;
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .btn {
+            padding: 19px 34px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #4cc9f0, #5e60ce);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: #4a5568;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .format-section {
+            background: rgba(29, 32, 49, 0.8);
+            border-radius: 18px;
+            padding: 35px;
+            margin-bottom: 40px;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .format-title {
+            font-size: 21px;
+            color: #e2e8f0;
+            margin-bottom: 20px;
+        }
+
+        #formatSelect {
+            width: 100%;
+            padding: 19px 24px;
+            border-radius: 14px;
+            font-size: 16px;
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #ffffff;
+            outline: none;
+            margin-bottom: 24px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+        }
+
+        #formatSelect:focus {
+            border-color: #4cc9f0;
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
+        }
+
+        .progress-section {
+            background: rgba(29, 32, 49, 0.8);
+            border-radius: 18px;
+            padding: 35px;
+            display: none;
+        }
+
+        .video-title {
+            font-size: 19px;
+            color: #f1f5f9;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #4cc9f0, #5e60ce);
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 17px;
+            color: #4cc9f0;
+            margin: 16px 0;
+        }
+
+        .log-box {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 20px;
+            border-radius: 10px;
+            height: 210px;
+            overflow-y: auto;
+            font-family: Consolas;
+            font-size: 13px;
+        }
+
+        .disclaimer {
+            max-width: 860px;
+            margin: 0 auto 60px;
+            background: rgba(22, 24, 38, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 18px;
+            padding: 32px;
+            color: #94a3b8;
+            font-size: 14px;
+            line-height: 1.8;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="canv"></canvas>
+
+    <div class="container">
+        <h1 class="title">Josia万能视频解析</h1>
+        <div class="usage">
+            粘贴视频链接，点击解析画质，选择清晰度即可开始下载
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="请粘贴视频链接">
+            <button class="btn btn-primary" id="parseBtn" onclick="startParse()">解析画质</button>
+            <button class="btn btn-danger" id="stopBtn" onclick="stopParse()" style="display: none;">停止解析</button>
+        </div>
+
+        <div class="format-section" id="formatSection">
+            <div class="format-title">选择下载画质</div>
+            <select id="formatSelect"></select>
+            <button class="btn btn-primary" style="width:100%" onclick="startDownload()">开始下载</button>
+        </div>
+
+        <div class="progress-section" id="progressSection">
+            <div class="video-title" id="videoTitle"></div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">0%</div>
+            <div class="log-box" id="logBox"></div>
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        <h4>免责声明</h4>
+        <p>本工具仅用于个人学习与技术研究，禁止用于商业用途、二次分发、出售或非法传播。</p>
+        <p>所有视频资源版权归原平台及创作者所有，本工具不存储任何视频内容。</p>
+        <p>使用本工具产生的任何法律责任由使用者自行承担。</p>
+    </div>
+
+    <script>
+        // ===================== 全屏自适应粒子背景（无鼠标交互）=====================
+        window.requestAnimFrame = (function () {
+            return window.requestAnimationFrame || window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame || function (callback) { window.setTimeout(callback, 1000 / 60); };
+        })();
+
+        window.addEventListener('load', start, false);
+
+        var c, $, w, h, midX, midY, num = 650, parts = [], end = Math.PI * 2;
+
+        function start() {
+            c = document.getElementById('canv');
+            $ = c.getContext('2d');
+            resizeCanvas();
+            createParticles();
+            run();
+            window.addEventListener('resize', resizeCanvas);
+        }
+
+        function resizeCanvas() {
+            w = c.width = window.innerWidth;
+            h = c.height = window.innerHeight;
+            midX = w / 2;
+            midY = h / 2;
+        }
+
+        function run() {
+            window.requestAnimFrame(run);
+            render();
+        }
+
+        function Particle() {
+            this.deg = Math.floor(Math.random() * 360);
+            this.rad = Math.floor(Math.random() * w * 0.5);
+            this.x = Math.floor(Math.random() * w);
+            this.y = Math.floor(Math.random() * h);
+            this.distX = this.x;
+            this.distY = this.y;
+            this.color = 'rgb(' +
+                Math.floor(Math.random() * 130) + ',' +
+                Math.floor(Math.random() * 50) + ',' +
+                Math.floor(Math.random() * 100) + ')';
+            this.size = 1 + Math.floor(Math.random() * (this.rad * 0.055));
+        }
+
+        function createParticles() {
+            parts = [];
+            for (let i = 0; i < num; i++) {
+                parts.push(new Particle());
+            }
+        }
+
+        function render() {
+            $.globalCompositeOperation = 'source-over';
+            $.fillStyle = 'hsla(242, 30%, 5%, .55)';
+            $.fillRect(0, 0, w, h);
+            $.globalCompositeOperation = 'lighter';
+
+            for (let p of parts) {
+                const radians = Math.PI / 180 * p.deg;
+                p.distX = midX + p.rad * Math.cos(radians);
+                p.distY = midY + p.rad * Math.sin(radians) * 0.4;
+
+                p.x += (p.distX - p.x) / 120;
+                p.y += (p.distY - p.y) / 120;
+
+                const size = p.size * (p.y * 1.5 / h);
+                if (size < 0.1) continue;
+
+                $.beginPath();
+                $.fillStyle = p.color;
+                $.arc(p.x, p.y, size, 0, end, true);
+                $.fill();
+                $.closePath();
+
+                let vary = 4;
+                if (p.size >= 2) vary = 3;
+                if (p.size >= 3) vary = 2;
+                if (p.size >= 4) vary = 1;
+
+                vary *= (p.y / (h * 0.9));
+                p.deg += vary * 0.15;
+                p.deg %= 360;
+            }
+        }
+
+        // ===================== 功能逻辑 =====================
+        let parseController = null;
+        let currentUrl = "";
+
+        async function startParse() {
+            const url = document.getElementById("urlInput").value.trim();
+            if (!url) return alert("请输入视频链接");
+            currentUrl = url;
+            const btn = document.getElementById("parseBtn");
+            const stop = document.getElementById("stopBtn");
+            btn.disabled = true;
+            btn.textContent = "解析中...";
+            stop.style.display = "inline-block";
+            document.getElementById("formatSection").style.display = "none";
+
+            parseController = new AbortController();
+            try {
+                const r = await fetch("/info", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url }),
+                    signal: parseController.signal
+                });
+                const data = await r.json();
+                if (data.error) throw new Error(data.details || data.error);
+
+                const sel = document.getElementById("formatSelect");
+                sel.innerHTML = "";
+                data.formats.forEach(f => {
+                    const opt = document.createElement("option");
+                    opt.value = f.format_id;
+                    opt.innerText = `${f.height}P (${f.resolution})`;
+                    sel.appendChild(opt);
+                });
+                document.getElementById("videoTitle").innerText = data.title;
+                document.getElementById("formatSection").style.display = "block";
+            } catch (e) {
+                if (e.name !== "AbortError") alert("解析失败：" + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "解析画质";
+                stop.style.display = "none";
+                parseController = null;
+            }
+        }
+
+        function stopParse() {
+            if (parseController) {
+                parseController.abort();
+                parseController = null;
+                document.getElementById("parseBtn").disabled = false;
+                document.getElementById("parseBtn").textContent = "解析画质";
+                document.getElementById("stopBtn").style.display = "none";
+            }
+        }
+
+        async function startDownload() {
+            const fmt = document.getElementById("formatSelect").value;
+            if (!fmt) return;
+            const sec = document.getElementById("progressSection");
+            sec.style.display = "block";
+            const log = document.getElementById("logBox");
+            const bar = document.getElementById("progressBar");
+            const txt = document.getElementById("progressText");
+            log.innerText = "";
+            bar.style.width = "0%";
+            txt.innerText = "0%";
+
+            const res = await fetch("/download", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url: currentUrl, format_id: fmt })
+            });
+
+            const reader = res.body.getReader();
+            const dec = new TextDecoder();
+            while (1) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const chunk = dec.decode(value);
+                const lines = chunk.split("\n").filter(i => i);
+                lines.forEach(line => {
+                    try {
+                        const j = JSON.parse(line);
+                        if (j.type === "progress") {
+                            const p = Math.round(j.progress * 100);
+                            bar.style.width = p + "%";
+                            txt.innerText = p + "%";
+                        }
+                        log.innerText += line + "\n";
+                        log.scrollTop = log.scrollHeight;
+                    } catch { }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
