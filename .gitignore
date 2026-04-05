@@ -1,0 +1,18 @@
+# 自动下载的可执行文件
+node.exe
+ffmpeg.exe
+yt-dlp.exe
+node.zip
+ffmpeg.zip
+
+# 依赖文件夹（自动安装，不上传）
+node_modules/
+
+# 视频下载目录（用户私有文件，不上传）
+downloads/
+
+# 系统垃圾文件
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
