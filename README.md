@@ -33,12 +33,45 @@ JosiaVD 是一款基于 yt-dlp + FFmpeg + Node.js 开发的视频解析下载工
 
 ---
 
-## 📁 文件说明
+## 📁 文件说明及最终目录结构
+### 一、仓库自带文件（上传至GitHub的文件）
 - `start.bat` —— 一键启动脚本（核心启动文件）
 - `server.js` —— 后端服务文件（负责视频解析与下载逻辑）
 - `public/index.html` —— 前端界面文件（用户操作界面）
-- `downloads/` —— 视频保存目录（默认下载路径）
 - `package.json` —— 项目依赖配置文件（管理所需依赖）
+- `package-lock.json` —— 依赖版本锁定文件（确保所有环境依赖版本一致）
+- `README.md` —— 项目说明文档（功能、使用方法、注意事项等）
+- `.gitignore` —— Git忽略配置文件（指定无需上传的文件/文件夹）
+
+### 二、自动创建的目录（启动脚本后生成）
+- `downloads/` —— 视频默认保存目录，所有下载的视频自动存储于此
+
+### 三、自动下载的依赖文件（启动脚本后生成）
+- `node_modules/` —— 项目依赖总文件夹，包含express及所有子依赖（目录内文件较多，无需手动操作）
+- `node.exe` —— Node.js 可执行文件（自动下载，用于运行后端服务）
+- `ffmpeg.exe` —— 视频处理工具（自动下载，用于视频解析与合并）
+- `yt-dlp.exe` —— 视频下载核心工具（自动下载，用于解析视频链接）
+
+### 最终成功运行时的目录结构
+```
+JosiaVD/
+├─ 仓库自带文件（上传GitHub）
+│  ├─ start.bat
+│  ├─ server.js
+│  ├─ public/
+│  │  └─ index.html
+│  ├─ package.json
+│  ├─ package-lock.json
+│  ├─ README.md
+│  └─ .gitignore
+├─ 自动创建的目录（启动后生成）
+│  └─ downloads/ （视频保存目录）
+└─ 自动下载的依赖文件（启动后生成）
+   ├─ node_modules/ （所有依赖文件夹）
+   ├─ node.exe
+   ├─ ffmpeg.exe
+   └─ yt-dlp.exe
+```
 
 ---
 
@@ -53,4 +86,4 @@ JosiaVD 是一款基于 yt-dlp + FFmpeg + Node.js 开发的视频解析下载工
 - Node.js（运行环境，脚本自动下载）
 - yt-dlp（视频下载核心，脚本自动下载）
 - FFmpeg（视频处理工具，脚本自动下载）
-- Express（后端框架，自动安装）
+- Express（后端框架，自动安装至node_modules）
