@@ -4,6 +4,29 @@
 
 JosiaVD 是一款基于 yt-dlp + FFmpeg + Node.js 开发的视频解析下载工具，支持一键解析、下载网页视频，无需手动安装运行环境，双击即可启动使用。
 
+## ⚠️ 启动依赖下载慢？可手动下载（推荐）
+如果启动 start.bat 时自动下载依赖速度过慢，可**手动下载以下三个程序**，直接解压放到**工具根目录**，再次启动时会自动跳过下载，大幅提升启动速度。
+
+---
+
+### 📥 手动下载地址
+1. yt-dlp.exe  
+   https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe
+
+2. ffmpeg.exe  
+   https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip
+
+3. node.exe（Node.js 便携版）  
+   https://nodejs.org/dist/latest/win-x64/node.exe
+
+---
+
+### 📂 放置说明
+将以下三个文件**直接放到工具根目录**即可：
+- yt-dlp.exe
+- ffmpeg.exe
+- node.exe
+
 ---
 
 ## ✨ 功能特点
