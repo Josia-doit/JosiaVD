@@ -4,8 +4,8 @@ chcp 65001 >nul 2>&1
 title JosiaVD Video Downloader
 
 echo ==============================================
-echo          JosiaVD One-Click Startup
-echo        Automatic Setup & Download Tools
+echo          JosiaVD Video Downloader
+echo                One-Click Startup
 echo ==============================================
 echo.
 
