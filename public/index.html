@@ -3,266 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Josia万能视频解析</title>
+    <title>JosiaVD Video Downloader</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+        body { 
+            margin: 0; padding: 0; min-height: 100vh; background: #0a0a1a; 
+            overflow-x: hidden; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        #canv { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; background: hsla(242, 30%, 5%, 1); }
+
+        .container { 
+            width: 100%; max-width: 920px; 
+            background: rgba(22, 24, 38, 0.88); 
+            backdrop-filter: blur(12px); border-radius: 22px; 
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45); 
+            padding: 55px 50px; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            margin: 20px; 
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: #0a0a1a;
-            overflow-x: hidden;
-        }
-
-        #canv {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: -1;
-            background: hsla(242, 30%, 5%, 1);
-        }
-
-        .container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 900px;
-            margin: 70px auto 40px;
-            background: rgba(22, 24, 38, 0.85);
-            backdrop-filter: blur(12px);
-            border-radius: 22px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-            padding: 55px 50px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .title {
+        /* 欢迎面板 */
+        .welcome-panel {
+            background: rgba(29, 32, 49, 0.95); 
+            border-radius: 22px; 
+            padding: 50px 45px; 
+            border: 1px solid rgba(76, 201, 240, 0.3); 
             text-align: center;
-            font-size: 42px;
-            font-weight: 700;
-            background: linear-gradient(90deg, #4cc9f0, #72efdd, #5e60ce);
-            -webkit-background-clip: text;
-            color: transparent;
-            margin-bottom: 20px;
+        }
+        .welcome-panel h2 { color: #4cc9f0; margin-bottom: 25px; font-size: 28px; }
+        .welcome-panel .usage, .welcome-panel .disclaimer {
+            color: #cbd5e1; font-size: 17px; line-height: 1.8; margin-bottom: 35px; 
+            text-align: left; background: rgba(0,0,0,0.25); padding: 25px; border-radius: 14px;
+        }
+        .welcome-panel .disclaimer { color: #f87171; border-left: 4px solid #f87171; }
+        .welcome-panel .btn-confirm {
+            background: linear-gradient(90deg, #4cc9f0, #5e60ce); color: #fff; 
+            padding: 16px 50px; border-radius: 14px; font-size: 18px; font-weight: 600; 
+            border: none; cursor: pointer;
+        }
+        .welcome-panel .btn-confirm:hover { transform: translateY(-3px); }
+
+        .title { text-align: center; font-size: 42px; font-weight: 700; 
+            background: linear-gradient(90deg, #4cc9f0, #72efdd, #5e60ce); 
+            -webkit-background-clip: text; color: transparent; margin-bottom: 30px; }
+
+        .input-group { display: flex; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; align-items: center; }
+        .input-wrapper { flex: 1; min-width: 300px; position: relative; }
+
+        /* 输入框 - 恢复最原始自然状态 */
+        #urlInput { 
+            width: 100%; padding: 19px 24px; border-radius: 14px; font-size: 16px; 
+            background: rgba(255, 255, 255, 0.95); 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            color: #1e2937; 
+            outline: none; 
+        }
+        #urlInput:focus { 
+            border-color: #4cc9f0; 
+            box-shadow: 0 0 0 3px rgba(76, 201, 240, 0.2);
         }
 
-        .usage {
-            text-align: center;
-            color: #cbd5e1;
-            font-size: 17px;
-            line-height: 1.7;
-            margin-bottom: 40px;
+        /* 按钮样式 - 浅色半透明 */
+        .input-btn { 
+            position: absolute; top: 50%; transform: translateY(-50%); 
+            width: 38px; height: 38px; border-radius: 8px; border: none; 
+            background: rgba(255, 255, 255, 0.15); 
+            color: #1e2937; 
+            font-size: 19px; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .paste-btn { right: 52px; }
+        .clear-btn { right: 8px; }
+        .input-btn:hover { 
+            background: rgba(255, 255, 255, 0.3); 
+            transform: translateY(-50%) scale(1.05);
         }
 
-        .input-group {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-            align-items: center;
+        .btn { padding: 19px 34px; border-radius: 14px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; }
+        .btn-primary { background: linear-gradient(90deg, #4cc9f0, #5e60ce); color: #fff; }
+        .btn-primary:hover { transform: translateY(-2px); }
+        .btn-primary:disabled { background: #4a5568; cursor: not-allowed; }
+
+        .video-title-section { 
+            background: rgba(29, 32, 49, 0.8); border-radius: 18px; padding: 25px 30px; 
+            margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.06); display: none; 
+        }
+        .video-title-section h3 { color: #e2e8f0; font-size: 18px; margin-bottom: 8px; }
+        .video-title-full { 
+            color: #f1f5f9; font-size: 16px; line-height: 1.5; 
+            word-break: break-all; white-space: pre-wrap; 
         }
 
-        #urlInput {
-            flex: 1;
-            min-width: 300px;
-            padding: 19px 24px;
-            border-radius: 14px;
-            font-size: 16px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #fff;
-            outline: none;
-        }
+        .format-section { background: rgba(29, 32, 49, 0.8); border-radius: 18px; padding: 35px; margin-bottom: 20px; display: none; border: 1px solid rgba(255, 255, 255, 0.06); }
+        .format-title { font-size: 21px; color: #e2e8f0; margin-bottom: 20px; }
+        #formatSelect { width: 100%; padding: 19px 24px; border-radius: 14px; font-size: 16px; background: #1e293b; border: 1px solid #475569; color: #ffffff; outline: none; margin-bottom: 24px; appearance: none; 
+            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); 
+            background-repeat: no-repeat; background-position: right 16px center; }
 
-        #urlInput:focus {
-            border-color: #4cc9f0;
-            background: rgba(255, 255, 255, 0.12);
+        /* 重复文件提示 */
+        .confirm-panel { 
+            background: rgba(29, 32, 49, 0.95); border-radius: 18px; padding: 30px; 
+            margin: 25px 0; border: 1px solid rgba(76, 201, 240, 0.4); display: none; 
         }
+        .confirm-panel .tip-text { 
+            color: #f1f5f9; 
+            font-size: 17px; 
+            line-height: 1.75; 
+            margin-bottom: 25px;
+        }
+        .confirm-panel .version { color: #fb923c; font-weight: 600; }
+        .confirm-panel .filename { color: #60a5fa; font-weight: 500; word-break: break-all; }
+        .confirm-panel .btn-group { display: flex; gap: 12px; justify-content: flex-end; }
+        .confirm-panel .btn-confirm { background: linear-gradient(90deg, #4cc9f0, #5e60ce); color: #fff; padding: 13px 32px; border-radius: 10px; font-weight: 600; }
+        .confirm-panel .btn-cancel { background: #475568; color: #fff; padding: 13px 32px; border-radius: 10px; }
 
-        .btn {
-            padding: 19px 34px;
-            border-radius: 14px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
-        }
+        .progress-section { background: rgba(29, 32, 49, 0.8); border-radius: 18px; padding: 35px; display: none; }
+        .progress-bar-container { width: 100%; height: 15px; background: rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+        .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #4cc9f0, #5e60ce); transition: width 0.3s ease; }
+        .progress-text { text-align: center; font-size: 17px; color: #4cc9f0; margin-bottom: 20px; line-height: 1.5; }
+        .permanent-log-container { background: #111827; border-radius: 10px; padding: 16px; font-family: Consolas; font-size: 13px; color: #e5e7eb; line-height: 1.6; max-height: 320px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+        .live-log-container { background: #111827; border-radius: 0 0 10px 10px; padding: 8px 16px 16px 16px; font-family: Consolas; font-size: 13px; color: #e5e7eb; line-height: 1.6; min-height: 60px; max-height: 60px; overflow: hidden; white-space: pre-wrap; word-break: break-all; }
 
-        .btn-primary {
-            background: linear-gradient(90deg, #4cc9f0, #5e60ce);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-primary:disabled {
-            background: #4a5568;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-danger {
-            background: #ef4444;
-            color: #fff;
-        }
-
-        .format-section {
-            background: rgba(29, 32, 49, 0.8);
-            border-radius: 18px;
-            padding: 35px;
-            margin-bottom: 40px;
-            display: none;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .format-title {
-            font-size: 21px;
-            color: #e2e8f0;
-            margin-bottom: 20px;
-        }
-
-        #formatSelect {
-            width: 100%;
-            padding: 19px 24px;
-            border-radius: 14px;
-            font-size: 16px;
-            background: #1e293b;
-            border: 1px solid #475569;
-            color: #ffffff;
-            outline: none;
-            margin-bottom: 24px;
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-        }
-
-        #formatSelect:focus {
-            border-color: #4cc9f0;
-            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
-        }
-
-        .progress-section {
-            background: rgba(29, 32, 49, 0.8);
-            border-radius: 18px;
-            padding: 35px;
-            display: none;
-        }
-
-        .video-title {
-            font-size: 19px;
-            color: #f1f5f9;
-            margin-bottom: 20px;
-        }
-
-        .progress-bar-container {
-            width: 100%;
-            height: 15px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #4cc9f0, #5e60ce);
-            transition: width 0.3s;
-        }
-
-        .progress-text {
-            text-align: center;
-            font-size: 17px;
-            color: #4cc9f0;
-            margin: 16px 0;
-        }
-
-        .log-box {
-            background: #111827;
-            color: #e5e7eb;
-            padding: 20px;
-            border-radius: 10px;
-            height: 210px;
-            overflow-y: auto;
-            font-family: Consolas;
-            font-size: 13px;
-        }
-
-        .disclaimer {
-            max-width: 860px;
-            margin: 0 auto 60px;
-            background: rgba(22, 24, 38, 0.85);
-            backdrop-filter: blur(12px);
-            border-radius: 18px;
-            padding: 32px;
-            color: #94a3b8;
-            font-size: 14px;
-            line-height: 1.8;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
+        #loadingSpinner { display: none; margin: 30px auto; width: 50px; height: 50px; border: 6px solid rgba(76, 201, 240, 0.2); border-top: 6px solid #4cc9f0; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-
 <body>
     <canvas id="canv"></canvas>
-
     <div class="container">
-        <h1 class="title">Josia万能视频解析</h1>
-        <div class="usage">
-            粘贴视频链接，点击解析画质，选择清晰度即可开始下载
-        </div>
 
-        <div class="input-group">
-            <input type="text" id="urlInput" placeholder="请粘贴视频链接">
-            <button class="btn btn-primary" id="parseBtn" onclick="startParse()">解析画质</button>
-            <button class="btn btn-danger" id="stopBtn" onclick="stopParse()" style="display: none;">停止解析</button>
-        </div>
-
-        <div class="format-section" id="formatSection">
-            <div class="format-title">选择下载画质</div>
-            <select id="formatSelect"></select>
-            <button class="btn btn-primary" style="width:100%" onclick="startDownload()">开始下载</button>
-        </div>
-
-        <div class="progress-section" id="progressSection">
-            <div class="video-title" id="videoTitle"></div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progressBar"></div>
+        <!-- 欢迎面板 -->
+        <div class="welcome-panel" id="welcomePanel">
+            <h2>欢迎使用 JosiaVD Video Downloader</h2>
+            <div class="usage">
+                <strong>使用方法：</strong><br>
+                1. 在上方输入框粘贴视频链接<br>
+                2. 点击「解析画质」<br>
+                3. 选择清晰度后点击「开始下载」<br>
+                4. 文件会保存在程序目录下的 <strong>downloads</strong> 文件夹
             </div>
-            <div class="progress-text" id="progressText">0%</div>
-            <div class="log-box" id="logBox"></div>
+            <div class="disclaimer">
+                <strong>免责声明：</strong><br>
+                本工具仅供个人学习与技术研究使用，禁止用于商业用途、二次分发、出售或任何非法传播行为。<br>
+                所有视频资源的版权归原平台及创作者所有，本工具不会存储任何视频内容。<br>
+                使用本工具产生的一切法律责任，均由使用者自行承担。
+            </div>
+            <button class="btn-confirm" onclick="agreeAndContinue()">我已了解并同意，继续使用</button>
         </div>
-    </div>
 
-    <div class="disclaimer">
-        <h4>免责声明</h4>
-        <p>本工具仅用于个人学习与技术研究，禁止用于商业用途、二次分发、出售或非法传播。</p>
-        <p>所有视频资源版权归原平台及创作者所有，本工具不存储任何视频内容。</p>
-        <p>使用本工具产生的任何法律责任由使用者自行承担。</p>
+        <!-- 主界面 -->
+        <div id="mainUI" style="display: none;">
+            <h1 class="title">JosiaVD Video Downloader</h1>
+            
+            <div class="input-group">
+                <div class="input-wrapper">
+                    <input type="text" id="urlInput" placeholder="请粘贴视频链接" autocomplete="on">
+                    <button class="input-btn paste-btn" id="pasteBtn" title="粘贴">📋</button>
+                    <button class="input-btn clear-btn" id="clearBtn" title="清空">✕</button>
+                </div>
+                <button class="btn btn-primary" id="parseBtn" onclick="startParse()">解析画质</button>
+            </div>
+
+            <div id="loadingSpinner"></div>
+
+            <div class="video-title-section" id="videoTitleSection" style="display:none;">
+                <h3>视频标题：</h3>
+                <div class="video-title-full" id="videoTitleFull"></div>
+            </div>
+
+            <div class="format-section" id="formatSection" style="display:none;">
+                <div class="format-title">选择下载画质</div>
+                <select id="formatSelect"></select>
+                <button class="btn btn-primary" id="downloadBtn" style="width:100%" onclick="startDownload()">开始下载</button>
+            </div>
+
+            <!-- 重复文件提示 -->
+            <div class="confirm-panel" id="confirmPanel">
+                <div class="tip-text" id="confirmTipText"></div>
+                <div class="btn-group">
+                    <button class="btn btn-confirm" onclick="confirmDownload()">确认下载（自动重命名）</button>
+                    <button class="btn btn-cancel" onclick="cancelDownload()">取消</button>
+                </div>
+            </div>
+
+            <div class="progress-section" id="progressSection" style="display:none;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText"></div>
+                <div class="permanent-log-container" id="permanentLogContainer"></div>
+                <div class="live-log-container" id="liveLogContainer"></div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // ===================== 全屏自适应粒子背景（无鼠标交互）=====================
+        // 背景动画保持不变
         window.requestAnimFrame = (function () {
             return window.requestAnimationFrame || window.webkitRequestAnimationFrame ||
                 window.mozRequestAnimationFrame || function (callback) { window.setTimeout(callback, 1000 / 60); };
         })();
-
         window.addEventListener('load', start, false);
 
         var c, $, w, h, midX, midY, num = 650, parts = [], end = Math.PI * 2;
-
         function start() {
             c = document.getElementById('canv');
             $ = c.getContext('2d');
@@ -270,168 +220,240 @@
             createParticles();
             run();
             window.addEventListener('resize', resizeCanvas);
+            initInputButtons();
         }
-
-        function resizeCanvas() {
-            w = c.width = window.innerWidth;
-            h = c.height = window.innerHeight;
-            midX = w / 2;
-            midY = h / 2;
-        }
-
-        function run() {
-            window.requestAnimFrame(run);
-            render();
-        }
-
+        function resizeCanvas() { w = c.width = window.innerWidth; h = c.height = window.innerHeight; midX = w / 2; midY = h / 2; }
+        function run() { window.requestAnimFrame(run); render(); }
         function Particle() {
             this.deg = Math.floor(Math.random() * 360);
             this.rad = Math.floor(Math.random() * w * 0.5);
             this.x = Math.floor(Math.random() * w);
             this.y = Math.floor(Math.random() * h);
-            this.distX = this.x;
-            this.distY = this.y;
-            this.color = 'rgb(' +
-                Math.floor(Math.random() * 130) + ',' +
-                Math.floor(Math.random() * 50) + ',' +
-                Math.floor(Math.random() * 100) + ')';
+            this.distX = this.x; this.distY = this.y;
+            this.color = 'rgb(' + Math.floor(Math.random() * 130) + ',' + Math.floor(Math.random() * 50) + ',' + Math.floor(Math.random() * 100) + ')';
             this.size = 1 + Math.floor(Math.random() * (this.rad * 0.055));
         }
-
-        function createParticles() {
-            parts = [];
-            for (let i = 0; i < num; i++) {
-                parts.push(new Particle());
-            }
-        }
-
+        function createParticles() { parts = []; for (let i = 0; i < num; i++) parts.push(new Particle()); }
         function render() {
             $.globalCompositeOperation = 'source-over';
             $.fillStyle = 'hsla(242, 30%, 5%, .55)';
             $.fillRect(0, 0, w, h);
             $.globalCompositeOperation = 'lighter';
-
             for (let p of parts) {
                 const radians = Math.PI / 180 * p.deg;
                 p.distX = midX + p.rad * Math.cos(radians);
-                p.distY = midY + p.rad * Math.sin(radians) * 0.4;
-
+                p.distY = midY + p.rad * Math.sin(radians);
                 p.x += (p.distX - p.x) / 120;
                 p.y += (p.distY - p.y) / 120;
-
                 const size = p.size * (p.y * 1.5 / h);
                 if (size < 0.1) continue;
-
-                $.beginPath();
-                $.fillStyle = p.color;
-                $.arc(p.x, p.y, size, 0, end, true);
-                $.fill();
-                $.closePath();
-
-                let vary = 4;
-                if (p.size >= 2) vary = 3;
-                if (p.size >= 3) vary = 2;
-                if (p.size >= 4) vary = 1;
-
-                vary *= (p.y / (h * 0.9));
-                p.deg += vary * 0.15;
-                p.deg %= 360;
+                $.beginPath(); $.fillStyle = p.color; $.arc(p.x, p.y, size, 0, end, true); $.fill(); $.closePath();
+                let vary = 4; if (p.size >= 2) vary = 3; if (p.size >= 3) vary = 2; if (p.size >= 4) vary = 1;
+                vary *= (p.y / (h * 0.9)); p.deg += vary * 0.15; p.deg %= 360;
             }
         }
 
-        // ===================== 功能逻辑 =====================
-        let parseController = null;
-        let currentUrl = "";
+        function initInputButtons() {
+            const pasteBtn = document.getElementById('pasteBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const urlInput = document.getElementById('urlInput');
+            pasteBtn.addEventListener('click', async () => { 
+                try { const text = await navigator.clipboard.readText(); urlInput.value = text; } 
+                catch (err) { alert('粘贴失败，请手动粘贴'); } 
+            });
+            clearBtn.addEventListener('click', () => { urlInput.value = ''; });
+        }
+
+        function agreeAndContinue() {
+            document.getElementById('welcomePanel').style.display = 'none';
+            document.getElementById('mainUI').style.display = 'block';
+        }
+
+        let currentUrl = "", currentTitle = "", currentHeight = "", currentFormatId = "";
+        let permanentLogs = [];
+        const permanentLogContainer = document.getElementById('permanentLogContainer');
+        const liveLogContainer = document.getElementById('liveLogContainer');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const progressText = document.getElementById('progressText');
+        let analysisDotsInterval = null;
+
+        function addPermanentLog(line) {
+            permanentLogs.push(line);
+            permanentLogContainer.innerText = permanentLogs.join('\n');
+            permanentLogContainer.scrollTop = permanentLogContainer.scrollHeight;
+        }
+        function updateLiveLog(line) { liveLogContainer.innerText = line || ''; }
+        function showLoading() { loadingSpinner.style.display = 'block'; }
+        function hideLoading() { loadingSpinner.style.display = 'none'; }
+
+        function startAnalysisDots() {
+            let dots = 1;
+            if (analysisDotsInterval) clearInterval(analysisDotsInterval);
+            analysisDotsInterval = setInterval(() => {
+                progressText.innerText = '📊 正在分析视频文件' + '.'.repeat(dots);
+                dots = (dots % 3) + 1;
+            }, 500);
+        }
+        function stopAnalysisDots() {
+            if (analysisDotsInterval) clearInterval(analysisDotsInterval);
+            analysisDotsInterval = null;
+        }
 
         async function startParse() {
             const url = document.getElementById("urlInput").value.trim();
             if (!url) return alert("请输入视频链接");
             currentUrl = url;
+
             const btn = document.getElementById("parseBtn");
-            const stop = document.getElementById("stopBtn");
             btn.disabled = true;
             btn.textContent = "解析中...";
-            stop.style.display = "inline-block";
-            document.getElementById("formatSection").style.display = "none";
+            showLoading();
 
-            parseController = new AbortController();
+            document.getElementById("formatSection").style.display = "none";
+            document.getElementById("videoTitleSection").style.display = "none";
+            document.getElementById("confirmPanel").style.display = "none";
+            document.getElementById("progressSection").style.display = "none";
+
             try {
                 const r = await fetch("/info", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ url }),
-                    signal: parseController.signal
+                    body: JSON.stringify({ url })
                 });
                 const data = await r.json();
                 if (data.error) throw new Error(data.details || data.error);
+
+                currentTitle = data.title;
+                document.getElementById("videoTitleFull").textContent = data.title;
+                document.getElementById("videoTitleSection").style.display = "block";
 
                 const sel = document.getElementById("formatSelect");
                 sel.innerHTML = "";
                 data.formats.forEach(f => {
                     const opt = document.createElement("option");
                     opt.value = f.format_id;
-                    opt.innerText = `${f.height}P (${f.resolution})`;
+                    opt.textContent = `${f.height}P (${f.width}x${f.height}) 预计总大小: ${f.totalSizeText}`;
+                    opt.dataset.height = f.height;
                     sel.appendChild(opt);
                 });
-                document.getElementById("videoTitle").innerText = data.title;
                 document.getElementById("formatSection").style.display = "block";
             } catch (e) {
-                if (e.name !== "AbortError") alert("解析失败：" + e.message);
+                alert("解析失败：" + e.message);
             } finally {
                 btn.disabled = false;
                 btn.textContent = "解析画质";
-                stop.style.display = "none";
-                parseController = null;
-            }
-        }
-
-        function stopParse() {
-            if (parseController) {
-                parseController.abort();
-                parseController = null;
-                document.getElementById("parseBtn").disabled = false;
-                document.getElementById("parseBtn").textContent = "解析画质";
-                document.getElementById("stopBtn").style.display = "none";
+                hideLoading();
             }
         }
 
         async function startDownload() {
-            const fmt = document.getElementById("formatSelect").value;
-            if (!fmt) return;
-            const sec = document.getElementById("progressSection");
-            sec.style.display = "block";
-            const log = document.getElementById("logBox");
-            const bar = document.getElementById("progressBar");
-            const txt = document.getElementById("progressText");
-            log.innerText = "";
-            bar.style.width = "0%";
-            txt.innerText = "0%";
+            const sel = document.getElementById("formatSelect");
+            currentFormatId = sel.value;
+            currentHeight = sel.selectedOptions[0].dataset.height;
+            if (!currentFormatId) return alert("请选择画质");
 
-            const res = await fetch("/download", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: currentUrl, format_id: fmt })
-            });
+            const downloadBtn = document.getElementById("downloadBtn");
+            downloadBtn.disabled = true;
+            downloadBtn.textContent = "处理中...";
+            showLoading();
 
-            const reader = res.body.getReader();
-            const dec = new TextDecoder();
-            while (1) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                const chunk = dec.decode(value);
-                const lines = chunk.split("\n").filter(i => i);
-                lines.forEach(line => {
-                    try {
-                        const j = JSON.parse(line);
-                        if (j.type === "progress") {
-                            const p = Math.round(j.progress * 100);
-                            bar.style.width = p + "%";
-                            txt.innerText = p + "%";
-                        }
-                        log.innerText += line + "\n";
-                        log.scrollTop = log.scrollHeight;
-                    } catch { }
+            try {
+                const check = await fetch("/check-exist", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url: currentUrl, height: currentHeight })
                 });
+                const existData = await check.json();
+                hideLoading();
+
+                if (existData.exists) {
+                    const safeTitle = currentTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                    const fileName = `${currentHeight}P_${safeTitle}.mp4`;
+
+                    document.getElementById("confirmTipText").innerHTML = 
+                        `⚠️ 检测到本地已存在 <span class="version">${currentHeight}P 版本</span>的 ` +
+                        `<span class="filename">${fileName}</span> 文件，是否重新下载并自动重命名？`;
+
+                    document.getElementById("confirmPanel").style.display = "block";
+                    downloadBtn.disabled = false;
+                    downloadBtn.textContent = "开始下载";
+                    return;
+                }
+
+                doDownload();
+
+            } catch (e) {
+                hideLoading();
+                downloadBtn.disabled = false;
+                downloadBtn.textContent = "开始下载";
+                alert("检查失败，请重试");
+            }
+        }
+
+        function confirmDownload() {
+            document.getElementById("confirmPanel").style.display = "none";
+            doDownload();
+        }
+
+        function cancelDownload() {
+            document.getElementById("confirmPanel").style.display = "none";
+            const downloadBtn = document.getElementById("downloadBtn");
+            downloadBtn.disabled = false;
+            downloadBtn.textContent = "开始下载";
+        }
+
+        async function doDownload() {
+            const sec = document.getElementById("progressSection");
+            const progressBar = document.getElementById("progressBar");
+            const downloadBtn = document.getElementById("downloadBtn");
+
+            sec.style.display = "block";
+            permanentLogs = [];
+            permanentLogContainer.innerText = '';
+            updateLiveLog('');
+            startAnalysisDots();
+            progressBar.style.width = "0%";
+            progressText.innerText = "📊 正在分析视频文件";
+
+            downloadBtn.textContent = "下载中...";
+            downloadBtn.disabled = true;
+
+            try {
+                const res = await fetch("/download", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ url: currentUrl, format_id: currentFormatId, height: currentHeight })
+                });
+
+                const reader = res.body.getReader();
+                const dec = new TextDecoder();
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    const chunk = dec.decode(value);
+                    const lines = chunk.split("\n").filter(i => i.trim());
+                    lines.forEach(line => {
+                        try {
+                            const j = JSON.parse(line);
+                            if (j.type === "progress") {
+                                const progressPercent = Math.round(j.progress);
+                                progressBar.style.width = `${progressPercent}%`;
+                                progressText.innerText = j.stage + (j.speed && j.speed !== "---" ? ` | ${progressPercent}% | 速度: ${j.speed} | 大小: ${j.size} | 剩余: ${j.eta}` : "");
+                                if (j.isLive === false) addPermanentLog(j.log); else updateLiveLog(j.log);
+                                if (j.stage.includes("下载视频") || j.stage.includes("开始下载")) stopAnalysisDots();
+                            }
+                        } catch (err) {}
+                    });
+                }
+            } catch (e) {
+                console.error("下载错误:", e);
+                addPermanentLog("[ERROR] 下载过程中出现错误");
+            } finally {
+                stopAnalysisDots();
+                downloadBtn.textContent = "开始下载";
+                downloadBtn.disabled = false;
+                updateLiveLog('');
             }
         }
     </script>
