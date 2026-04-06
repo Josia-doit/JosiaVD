@@ -33,10 +33,10 @@ if not exist "node_modules" (
 
 if not exist "ffmpeg.exe" (
     echo [+] Downloading ffmpeg.exe...
-    powershell -Command "Invoke-WebRequest -Uri 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win-x64-gpl.zip' -OutFile 'ffmpeg.zip'"
+    powershell -Command "Invoke-WebRequest -Uri 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip' -OutFile 'ffmpeg.zip'"
     powershell -Command "Expand-Archive -Path 'ffmpeg.zip' -DestinationPath '.' -Force"
-    move /y "ffmpeg-master-latest-win-x64-gpl\bin\ffmpeg.exe" .\ >nul
-    rmdir /s /q "ffmpeg-master-latest-win-x64-gpl" >nul
+    move /y "ffmpeg-master-latest-win64-gpl\bin\ffmpeg.exe" .\ >nul
+    rmdir /s /q "ffmpeg-master-latest-win64-gpl" >nul
     del /f /q "ffmpeg.zip" >nul
     echo [+] ffmpeg downloaded!
     echo.
