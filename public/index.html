@@ -107,6 +107,17 @@
             background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); 
             background-repeat: no-repeat; background-position: right 16px center; }
 
+        /* 下载按钮组样式（新增） */
+        .download-btn-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+        }
+        .download-btn-group .btn {
+            flex: 1;
+            width: auto;
+        }
+
         /* 重复文件提示 */
         .confirm-panel { 
             background: rgba(29, 32, 49, 0.95); border-radius: 18px; padding: 30px; 
@@ -181,7 +192,11 @@
             <div class="format-section" id="formatSection" style="display:none;">
                 <div class="format-title">选择下载画质</div>
                 <select id="formatSelect"></select>
-                <button class="btn btn-primary" id="downloadBtn" style="width:100%" onclick="startDownload()">开始下载</button>
+                <!-- 改造按钮区域：新增按钮组，包含开始下载+打开下载目录 -->
+                <div class="download-btn-group">
+                    <button class="btn btn-primary" id="downloadBtn" onclick="startDownload()">开始下载</button>
+                    <button class="btn btn-primary" id="openDirBtn" onclick="openDownloadDir()">打开下载目录</button>
+                </div>
             </div>
 
             <!-- 重复文件提示 -->
@@ -454,6 +469,18 @@
                 downloadBtn.textContent = "开始下载";
                 downloadBtn.disabled = false;
                 updateLiveLog('');
+            }
+        }
+
+        // 新增：打开下载目录函数
+        async function openDownloadDir() {
+            try {
+                await fetch("/open-dir", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+            } catch (e) {
+                console.error("打开下载目录失败:", e);
             }
         }
     </script>
